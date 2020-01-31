@@ -1,70 +1,126 @@
-import React, { Component, useState } from "react";
-import { StyleSheet, Text, View, Button, TextInput } from "react-native";
+import React, { Component } from 'react';
+import { Text, View, TextInput, StyleSheet, ActivityIndicator, Button, Platform, WebView } from 'react-native';
 
-let baseUrl = "http://chakra-healer.ommygod.com:8000";
+const { height, width } = require("Dimensions").get("window");
 
-export default function App() {
-  const [conditionTitle, setConditionTitle] = useState([]);
-  const [primaryChakra, setPrimaryChakra] = useState([]);
-  const [secondaryChakra, setSecondaryChakra] = useState([]);
-  const [tertiaryChakra, setTertiaryChakra] = useState([]);
-
-    getConditions() {
-        let url = baseUrl + "/conditions";
-
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                Accept: 'application/json',
-            },
-            credentials: 'same-origin'
-        }).then((response) => {
-            if (response.status === 403) {
-                console.log('Authentication error...');
-                this.setState({currentMessage: 'Authentication error.'});
-            }
-            return response.json();
-        }).then((responseJson) => {
-            console.log(responseJson);
-            return responseJson;
-        }).catch((error) => {
-            console.log(error);
-            throw(error);
-        });
+export default class App extends Component {
+    constructor(props) {
+        super(props);
+            this.state = {
+            isLoading: false,
+        }
     }
 
-  return (
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                <Text>Enter Username:</Text>
+    componentDidMount() {
+    }
+
+    onPressButton() {
+        let data = {
+            method: 'POST',
+            body: JSON.stringify({
+                name: this.state.name,
+                job: this.state.job
+            }),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        }
+
+        this.setState({
+            isLoading: true
+        })
+
+        return fetch('https://reqres.in/api/users', data)
+                .then((response) => response.json())
+                .then((responseJson) => {
+                    this.setState({
+                        isLoading: false,
+                        data: responseJson.data,
+                    });
+                    alert(JSON.stringify(responseJson));
+                })
+                .catch((error) => {
+                    alert(error);
+                    console.error(error);
+                });
+    }
+
+    renderButton() {
+        if (this.state.loading) {
+            return (
+                <View style={styles.spinnerStyle}>
+                    <ActivityIndicator size={size || "large"} />
+                </View>
+            );
+        }
+
+        return (
+            <Button
+                style={styles.buttonStyle}
+                onPress={() => this.onPressButton()}
+                title="Post API"
+                color="#FF8976"
+            />
+        );
+    }
+
+    render() {
+        return (
+            <View style={styles.container}>
+
+                <Text style={styles.titleStyle}>Name</Text>
                 <TextInput
-                    onChangeText={(text) => this.setState({currentUsername: text})}>
-                    {this.state.currentUsername}
-                </TextInput>
-                <Text>Enter Password:</Text>
+                    style={styles.textStyle}
+                    onChangeText={(text) => this.setState({ name: text })}
+                    value={this.state.name}
+                />
+
+                <Text style={styles.titleStyle}>Job</Text>
                 <TextInput
-                    onChangeText={(text) => this.setState({password: text})}>
-                    {this.state.password}
-                </TextInput>
-                <Button onPress={this.login} title="Login"/>
-                <Text>{this.state.currentMessage}</Text>
-                <Button onPress={this.logout} title="Logout"/>
-            </View>
-  );
+                    style={styles.textStyle}
+                    onChangeText={(text) => this.setState({ job: text })}
+                    value={this.state.job}
+                />
+
+                <Text style={styles.titleStyle}>
+                    {JSON.stringify(this.state.data)}
+                </Text>
+
+                {this.renderButton()}
+
+                </View>
+        );
+    }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-});
-
-
-    // {
-    //     "condition": "Fibromyalgia",
-    //     "primary_chakra": 5,
-    //     "secondary_chakra": 4,
-    //     "tertiary_chakra": 3
-    // }
+        container: {
+            flex: 1,
+            paddingTop: 60,
+            alignItems: 'center',
+            flexDirection: "column",
+        },
+        buttonStyle: {
+            height: 40,
+            width: width - 20,
+            margin: 10
+        },
+        textStyle: {
+            height: 40,
+            width: width - 20,
+            borderColor: 'gray',
+            borderWidth: 1,
+            fontSize: 20,
+            margin: 10,
+        },
+        titleStyle: {
+            width: width - 20,
+            fontSize: 20,
+        },
+        spinnerStyle: {
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center"
+        }
+    });
