@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Text, View, TextInput, StyleSheet, ActivityIndicator, Button, Platform, WebView } from 'react-native';
 
-const { height, width } = require("Dimensions").get("window");
 
 export default class App extends Component {
     constructor(props) {
@@ -103,19 +102,19 @@ const styles = StyleSheet.create({
         },
         buttonStyle: {
             height: 40,
-            width: width - 20,
+            width: '40%',
             margin: 10
         },
         textStyle: {
             height: 40,
-            width: width - 20,
+            width: '40%',
             borderColor: 'gray',
             borderWidth: 1,
             fontSize: 20,
             margin: 10,
         },
         titleStyle: {
-            width: width - 20,
+            width: '40%',
             fontSize: 20,
         },
         spinnerStyle: {
